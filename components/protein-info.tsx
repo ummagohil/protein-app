@@ -9,6 +9,28 @@ interface ProteinInfoProps {
   protein: Protein | null;
 }
 
+// Define a type for sample proteins
+type SampleProteinKey =
+  | "1cbn"
+  | "1hho"
+  | "1gfl"
+  | "4ins"
+  | "1bkv"
+  | "6vxx"
+  | "3eiy"
+  | "1ubq";
+
+const sampleProteins: Record<SampleProteinKey, { name: string }> = {
+  "1cbn": { name: "Crambin" },
+  "1hho": { name: "Hemoglobin" },
+  "1gfl": { name: "Green Fluorescent Protein" },
+  "4ins": { name: "Insulin" },
+  "1bkv": { name: "Collagen" },
+  "6vxx": { name: "SARS-CoV-2 Spike protein" },
+  "3eiy": { name: "Lysozyme" },
+  "1ubq": { name: "Ubiquitin" },
+};
+
 export function ProteinInfo({ protein }: ProteinInfoProps) {
   if (!protein) return <div>No protein data available</div>;
 
@@ -214,19 +236,8 @@ function getStructureDescription(protein: Protein): string {
       "Ubiquitin has a compact globular structure with a mixed alpha/beta fold, featuring a beta-grasp motif.",
   };
 
-  const sampleProteins = {
-    "1cbn": { name: "Crambin" },
-    "1hho": { name: "Hemoglobin" },
-    "1gfl": { name: "Green Fluorescent Protein" },
-    "4ins": { name: "Insulin" },
-    "1bkv": { name: "Collagen" },
-    "6vxx": { name: "SARS-CoV-2 Spike protein" },
-    "3eiy": { name: "Lysozyme" },
-    "1ubq": { name: "Ubiquitin" },
-  };
-
   const pdbId = Object.keys(descriptions).find(
-    (id) => protein.name === sampleProteins[id]?.name
+    (id) => protein.name === sampleProteins[id as SampleProteinKey]?.name
   );
 
   return (

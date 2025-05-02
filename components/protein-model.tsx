@@ -89,11 +89,24 @@ function BetaSheet({ points, width = 3, color }: BetaSheetProps) {
   );
 }
 
+// Ensure the Atom interface is defined correctly
+interface Atom {
+  element: Element; // Ensure this matches the defined elements
+  residueName: string; // Ensure this matches the defined residues
+  ss?: string; // Optional
+  chainId: string; // Ensure this is included
+}
+
+// Update the ProteinModelProps to include the correct type for quality
+interface Quality {
+  detail: number; // Ensure this is defined as an object
+}
+
 interface ProteinModelProps {
   protein: Protein | null;
   visualizationMode: string;
   colorScheme: string;
-  quality: number;
+  quality: Quality; // Update this line
   showSideChains: boolean;
   showHydrogens: boolean;
   showWater: boolean;
@@ -276,7 +289,12 @@ export function ProteinModel({
         <>
           {secondaryStructures.map((structure, index) => {
             const color = getColorByScheme(
-              { chainId: structure.chainId, ss: structure.type },
+              {
+                chainId: structure.chainId,
+                ss: structure.type ? structure.type : ("default" as any),
+                element: "default",
+                residueName: "default",
+              }, // Handle null case
               colorScheme
             );
 
@@ -288,12 +306,12 @@ export function ProteinModel({
 
               if (!startResidue.atoms.CA || !endResidue.atoms.CA) return null;
 
-              const start = [
+              const start: [number, number, number] = [
                 startResidue.atoms.CA.x,
                 startResidue.atoms.CA.y,
                 startResidue.atoms.CA.z,
               ];
-              const end = [
+              const end: [number, number, number] = [
                 endResidue.atoms.CA.x,
                 endResidue.atoms.CA.y,
                 endResidue.atoms.CA.z,
@@ -302,8 +320,8 @@ export function ProteinModel({
               return (
                 <Helix
                   key={`helix-${index}`}
-                  start={start as any}
-                  end={end as any}
+                  start={start}
+                  end={end}
                   radius={1.2}
                   color={color}
                   turns={structure.residues.length / 3.6} // ~3.6 residues per turn in alpha helix
@@ -312,7 +330,7 @@ export function ProteinModel({
               );
             } else if (structure.type === "E") {
               // Beta Sheet
-              const points = structure.residues
+              const points: [number, number, number][] = structure.residues
                 .filter((r) => r.atoms.CA)
                 .map((r) => [r.atoms.CA.x, r.atoms.CA.y, r.atoms.CA.z]);
 
@@ -321,7 +339,7 @@ export function ProteinModel({
               return (
                 <BetaSheet
                   key={`sheet-${index}`}
-                  points={points as any}
+                  points={points}
                   width={2.5}
                   color={color}
                 />
@@ -365,7 +383,7 @@ export function ProteinModel({
                 key={`atom-${index}`}
                 position={atom.position}
                 scale={atom.radius * 0.3}
-                color={getColorByScheme(atom, colorScheme)}
+                color={getColorByScheme(atom as any, colorScheme)}
               />
             ))}
           </Instances>
@@ -393,7 +411,7 @@ export function ProteinModel({
               key={`atom-${index}`}
               position={atom.position}
               scale={atom.radius}
-              color={getColorByScheme(atom, colorScheme)}
+              color={getColorByScheme(atom as any, colorScheme)}
             />
           ))}
         </Instances>
@@ -415,7 +433,10 @@ export function ProteinModel({
             iridescence={1}
             iridescenceIOR={1}
             iridescenceThicknessRange={[0, 1400]}
-            color={getColorByScheme({ chainId: "A" }, colorScheme)}
+            color={getColorByScheme(
+              { chainId: "A", element: "C", residueName: "ALA" },
+              colorScheme
+            )}
             transmissionSampler
             clearcoat={1}
             clearcoatRoughness={0.2}
