@@ -15,6 +15,8 @@
 - Three/fibre
 - Three/drei
 
+### 🖥️ Code
+[protein app code](https://github.com/ummagohil/protein-app-code/)
 
 ### 👀View App
 [protein app
